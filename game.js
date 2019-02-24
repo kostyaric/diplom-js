@@ -76,8 +76,7 @@ class Actor {
 
 }
 
-class Level
-{
+class Level {
 
 	constructor(grid = [], actors = []) {
 		this.grid = grid;
@@ -92,25 +91,111 @@ class Level
 	isFinished() {
 		return this.status !== null && this.finishDelay < 0;
 	}
+
+	actorAt(actor) {
+
+		if (!(actor instanceof Actor)) {
+			throw new Error('В качестве параметра можно передавать только объект с типом Actor');
+		}
+
+		for(let currentActor of this.actors) {
+			if (actor.isIntersect(currentActor)) {
+				return currentActor;
+			}
+		}
+
+		return undefined;
+
+	}
+
+	obstacleAt(pos, size) {
+
+		if (!((pos instanceof Vector) && (size instanceof Vector))) {
+			throw new Error('И позиция и размер должны иметь тип Vector');
+		}
+
+		let virtualActor = new Actor(pos, size);
+
+		if (virtualActor.bottom > this.height) {
+			return 'lava';
+		}
+		else if (virtualActor.left < 0 || virtualActor.right > this.width || virtualActor.top < 0) {
+			return 'wall';
+		}
+		
+		for (let i = Math.round(virtualActor.top); i < Math.round(virtualActor.bottom); i++) {
+
+			for (let j = Math.round(virtualActor.left); j < Math.round(virtualActor.right); j++) {
+			
+				console.log(this.grid[i][j]);
+				if (this.grid[i][j] !== undefined) {
+					return this.grid[i][j];
+				}
+
+			}
+
+		}
+
+		return undefined;
+
+	}
+
+	removeActor(actor) {
+
+		let index = this.actors.indexOf(actor);
+		if (index !== -1) {
+			this.actors.splice(index, 1);
+		}
+
+	}
+
+	noMoreActors(objectType) {
+
+		return !this.actors.some(elem => elem.type === objectType);
+
+	}
+
+	playerTouched(objectType, actor = undefined) {
+
+		if (this.status === null) {
+			
+			if (objectType === 'lava' || objectType === 'fireball') {
+				this.status = 'lost';
+			}
+
+			if (objectType === 'coin') {
+				
+				this.removeActor(actor);
+
+				if (this.noMoreActors('coin')) {
+					this.status = 'won';
+				}
+			}
+
+		}
+
+	}
+
 }
 
-/*
-const start = new Vector(30, 50);
-const moveTo = new Vector(5, 10);
-const finish = start.plus(moveTo.times(2));
 
-console.log(`Исходное расположение: ${start.x}:${start.y}`);
-console.log(`Текущее расположение: ${finish.x}:${finish.y}`);
-*/
+class LevelParser {
 
-/*
-const Player = new Actor();
 
+
+}
+
+class Player extends Actor {
+
+
+}
+
+
+/*тест*/
 const grid = [
     new Array(3),
-    ['wall', 'wall', 'lava']
+    ['wall', 'wall', 'lava'],
+    new Array(3)
   ];
   const level = new Level(grid);
-  debugger;
   runLevel(level, DOMDisplay);
-*/
