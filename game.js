@@ -178,11 +178,122 @@ class Level {
 
 }
 
-
 class LevelParser {
 
+	constructor(dictionary) {
+		this.dictionary = dictionary;
+	}
 
+	actorFromSymbol(symbol) {
 
+		if (symbol === undefined || !(symbol in this.dictionary)) {
+			return undefined;
+		}
+
+		return this.dictionary[symbol];
+
+	}
+
+	obstacleFromSymbol(symbol) {
+
+		if (symbol === 'x') {
+			return 'wall';
+		}
+		else if (symbol === '!') {
+			return 'lava';
+		}
+
+		return undefined;
+
+	}
+
+	createGrid (plan) {
+
+		const grid = [];
+
+		for (let i = 0; i < plan.length; i++) {
+			
+			let symbolArray = plan[i].split('');
+			grid.push(symbolArray.map(this.obstacleFromSymbol));
+
+		}
+
+		return grid;
+
+	}
+
+	createActors(plan) {
+
+		if (this.dictionary === undefined) {
+			return [];
+		}
+
+		let actors = [];
+		let symbolArray;
+		let actorClass;
+		let actor;
+
+		for (let i = 0; i < plan.length; i++) {
+			
+			symbolArray = plan[i].split('');
+			
+			for (let j = 0; j < symbolArray.length; j++) {
+				
+				actorClass = this.actorFromSymbol(symbolArray[j]);
+				if (actorClass === undefined || typeof actorClass !== 'function') {
+					continue;
+				}
+
+				actor = new actorClass(new Vector(j, i));
+				if (!(actor instanceof Actor)) {
+					continue;
+				}
+				
+				actors.push(actor);
+			}
+
+		}
+
+		return actors;
+
+	}
+
+	parse(plan) {
+		return new Level(this.createGrid(plan), this.createActors(plan));
+	}
+
+}
+
+class Fireball extends Actor {
+
+	getNextPosition() {
+
+	}
+
+	handleObstacle() {
+
+	}
+
+	act() {
+
+	}
+
+}
+
+class HorizontalFireball extends Fireball {
+
+}
+
+class VerticalFireball extends Fireball {
+	
+}
+
+class FireRain extends VerticalFireball {
+
+}
+
+class Coin extends Actor {
+	
 }
 
 class Player extends Actor {
@@ -192,6 +303,7 @@ class Player extends Actor {
 
 
 /*тест*/
+/*
 const grid = [
     new Array(3),
     ['wall', 'wall', 'lava'],
@@ -199,3 +311,4 @@ const grid = [
   ];
   const level = new Level(grid);
   runLevel(level, DOMDisplay);
+*/
