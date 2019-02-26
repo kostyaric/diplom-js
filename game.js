@@ -264,17 +264,36 @@ class LevelParser {
 
 }
 
+
 class Fireball extends Actor {
 
-	getNextPosition() {
+	constructor(pos = new Vector(0, 0), speed = new Vector(0, 0)) {
+		super(pos, new Vector(1, 1), speed);
+	}
 
+	get type() {
+		return 'fireball';
+	}
+
+	getNextPosition(time = 1) {
+		return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
 	}
 
 	handleObstacle() {
-
+		this.speed.x *= -1;
+		this.speed.y *= -1;
 	}
 
-	act() {
+	act(time, level) {
+
+		let nextPos = this.getNextPosition(time);
+
+		if (level.obstacleAt(nextPos, this.size) === undefined) {
+			this.pos = nextPos;
+		}
+		else {
+			this.handleObstacle();
+		}
 
 	}
 
@@ -282,10 +301,18 @@ class Fireball extends Actor {
 
 class HorizontalFireball extends Fireball {
 
+	constructor(pos = new Vector(0, 0)) {
+		super(pos, new Vector(2, 0));
+	}
+
 }
 
 class VerticalFireball extends Fireball {
 	
+	constructor(pos = new Vector(0, 0)) {
+		super(pos, new Vector(0, 2));
+	}
+
 }
 
 class FireRain extends VerticalFireball {
@@ -293,7 +320,7 @@ class FireRain extends VerticalFireball {
 }
 
 class Coin extends Actor {
-	
+
 }
 
 class Player extends Actor {
