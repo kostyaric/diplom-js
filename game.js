@@ -81,11 +81,15 @@ class Level {
 	constructor(grid = [], actors = []) {
 		this.grid = grid;
 		this.actors = actors;
-		this.player = actors.filter(elem => elem.type === 'player')[0];
+		this._player = actors.find(elem => elem.type === 'player');
 		this.height = grid.length;
 		this.width = Math.max(0, ...grid.map(elem => elem.length));
 		this.status = null;
 		this.finishDelay = 1;
+	}
+
+	get player() {
+		return this._player;
 	}
 
 	isFinished() {
@@ -183,7 +187,7 @@ class LevelParser {
 
 	actorFromSymbol(symbol) {
 
-		if (symbol === undefined || !(symbol in this.dictionary)) {
+		if (symbol === undefined) {
 			return undefined;
 		}
 
@@ -329,16 +333,23 @@ class Coin extends Actor {
 
 		super(pos, new Vector(0.6, 0.6), new Vector(0,0));
 
-		this.startPos = pos;
-		this.pos = this.pos.plus(new Vector(0.2, 0.1));
-		this.springSpeed = 8;
-		this.springDist = 0.07;
+		// this.realPos = pos;
+		// this.pos = pos;
+		this.pos = pos.plus(new Vector(0.2, 0.1));
 		this.spring = Math.random() * 2 * Math.PI;
 
 	}
 
 	get type() {
 		return 'coin';
+	}
+
+	get springSpeed() {
+		return 8;
+	}
+
+	get springDist() {
+		return 0.07;
 	}
 
 	updateSpring(time = 1) {
@@ -353,18 +364,16 @@ class Coin extends Actor {
 
 		this.updateSpring(time);
 
-		// console.log(this.startPos);
-		let springVector = this.getSpringVector();
-		// let newVector = this.startPos.plus(springVector);
-		// console.log(newVector);
+		// let springVector = this.getSpringVector();
+		// this.startPos = this.startPos.plus(springVector);
 
-		this.startPos = this.startPos.plus(springVector);
-		// return this.startPos;
-		// return newVector.times(time);
+		
+		// let springVector = this.getSpringVector();
+		// this.realPos = this.realPos.plus(springVector);
+		// this.pos = this.pos.plus(springVector);
 
-		return new Vector(this.pos.x, this.pos.y + springVector.y);
-		// const springVector = this.getSpringVector();
-
+		// return new Vector(this.pos.x, this.pos.y + springVector.y);
+		return this.pos.plus(this.getSpringVector());
 
 	}
 
